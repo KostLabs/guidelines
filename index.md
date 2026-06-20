@@ -1584,14 +1584,37 @@ The bad example has no clear structure, tests only the happy path, and produces 
 
 Go's `context.Context` is the standard mechanism for carrying deadlines, cancellation signals, and request-scoped values across API boundaries and goroutines. Pass it as the **first argument** to any function that performs I/O, calls external services, or may need to be cancelled.
 
-Never mix `context.Context` from the standard library with framework-specific contexts. When using Gin, extract the standard context from `*gin.Context` and pass that through your service and repository layers — never pass `*gin.Context` itself into service or repository code.
+Never mix `context.Context` from the standard library with framework-specific contexts. When using frameworks (e.g Gin), pass the context (e.g `*gin.Context`) directly as `context.Context` into your service and repository layers — it implements the interface and preserves framework's request lifecycle.
 
 **Good Example:**
 
 ```go
 // controller/user.go
 func (c *UserController) GetUser(ginCtx *gin.Context) {
-    // Extract the standard context from the Gin context
+    userID := ginCtx.Param("id")
+
+    // Pass gin.Context as context.Context — it implements the interface and
+    // preserves Gin's request lifecycle, avoiding race conditions on context state.
+    user, err := c.userService.GetUserByID(ginCtx, userID)
+    if err != nil {
+        handleContextError(ginCtx, err)
+        return
+    }
+
+    ginCtx.JSON(http.StatusOK, user)
+}
+
+// service/user.go — depends only on context.Context, not on *gin.Context
+func (s *UserService) GetUserByID(ctx context.Context, id string) (*model.User, error) {
+    return s.repo.FindByID(ctx, id)
+}
+```
+
+**Bad Example:**
+
+```go
+// controller/user.go
+func (c *UserController) GetUser(ginCtx *gin.Context) {
     ctx := ginCtx.Request.Context()
     userID := ginCtx.Param("id")
 
@@ -1604,18 +1627,9 @@ func (c *UserController) GetUser(ginCtx *gin.Context) {
     ginCtx.JSON(http.StatusOK, user)
 }
 
-// service/user.go — no Gin dependency
+// service/user.go — receives a stripped context, missing Gin's lifecycle signals
 func (s *UserService) GetUserByID(ctx context.Context, id string) (*model.User, error) {
     return s.repo.FindByID(ctx, id)
-}
-```
-
-**Bad Example:**
-
-```go
-// service/user.go — leaks Gin into the service layer
-func (s *UserService) GetUserByID(ginCtx *gin.Context, id string) (*model.User, error) {
-    return s.repo.FindByID(ginCtx, id)
 }
 ```
 

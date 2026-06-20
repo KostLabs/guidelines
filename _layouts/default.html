@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom styles for markdown content */
+      #main-content h1 {
+        margin-top: 2rem;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+      }
+      #main-content h2 {
+        margin-top: 1.75rem;
+        margin-bottom: 1.25rem;
+        font-weight: 600;
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+      }
+      #main-content h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+
+      /* Lists styles */
+      #main-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+      #main-content ol {
+        list-style-type: decimal;
+        padding-left: 1.5rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+      #main-content ul > li, #main-content ol > li {
+        margin-bottom: 0.5rem;
+      }
+
+      /* Code block styles */
+      #main-content pre {
+        background-color: #1f2937; /* darker gray for the block */
+        color: #f3f4f6; /* light text */
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+      }
+
+      /* Inline code styles */
+      #main-content code {
+        font-family: monospace;
+      }
+      
+      /* Only style inline code, not code inside pre */
+      #main-content :not(pre) > code {
+        background-color: #374151; /* slightly lighter gray */
+        color: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+      }
+      
+      /* Ensure code inside pre doesn't have background */
+      #main-content pre code {
+        background-color: transparent;
+        padding: 0;
+        border-radius: 0;
+      }
+      
+      /* Remove default content before/after pseudo-elements for code */
+      #main-content code:before, #main-content code:after {
+        content: none !important;
+      }
+
+      /* Blockquote styles */
+      #main-content blockquote {
+        border-left: 4px solid #d1d5db;
+        padding-left: 1rem;
+        font-style: italic;
+        color: #6b7280;
+        margin: 1rem 0;
+      }
+      
+      /* Horizontal rule */
+      #main-content hr {
+        margin: 2rem 0;
+        border: 0;
+        height: 1px;
+        background-color: #e5e7eb;
+      }
+      
+      /* Paragraph spacing */
+      #main-content p {
+        margin-bottom: 1rem;
+      }
+
+      /* Link styles */
+      #main-content a {
+        color: #3b82f6;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      
+      #main-content a:hover {
+        color: #2563eb;
+        text-decoration: underline;
+      }
+
+      /* Mobile menu styles */
+      .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 40;
+        display: none;
+      }
+      
+      .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background-color: white;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        overflow-y: auto;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .mobile-menu.open {
+        transform: translateX(0);
+      }
+      
+      .mobile-menu-open {
+        overflow: hidden;
+      }
+    </style>
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+
+{% seo %}
+
+    {% include head-custom.html %}
+  </head>
+
+  <body class="flex flex-col min-h-screen bg-gray-50">
+    <header class="bg-white shadow-sm py-4 w-full sticky top-0 z-10">
+      <div class="container mx-auto px-4 flex items-center justify-between">
+        <!-- Hamburger menu icon for mobile -->
+        <button id="hamburger-menu" class="md:hidden text-gray-800 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        
+        <div class="text-center flex-1">
+          <a href="{{ '/' | absolute_url }}">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">{{ site.title | default: site.github.repository_name }}</h1>
+          </a>
+          <h2 class="text-sm sm:text-base md:text-lg text-gray-600 mt-1">{{ site.description | default: site.github.project_tagline }}</h2>
+        </div>
+        
+        <!-- Empty div to balance the flex layout -->
+        <div class="md:block hidden w-6"></div>
+      </div>
+      
+      {% if site.github.is_project_page %}
+        <div class="text-center mt-2">
+          <a href="{{ site.github.repository_url }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded text-sm transition duration-200">
+            <span class="hidden sm:inline">View project on</span> GitHub
+          </a>
+        </div>
+      {% endif %}
+    </header>
+
+    <!-- Mobile menu overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="mobile-menu p-4">
+      <div class="flex justify-between items-center mb-4 border-b pb-4">
+        <h2 class="text-xl font-bold text-gray-800">Menu</h2>
+        <button id="close-mobile-menu" class="text-gray-800 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div id="mobile-menu-content">
+        <!-- Mobile menu content will be populated with JS -->
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row flex-1">
+      <!-- Sidebar toggle button (now only for tablet sizes) -->
+      <button id="sidebar-toggle" class="md:hidden mx-auto my-3 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded flex items-center transition duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <span>Table of Contents</span>
+      </button>
+      
+      <!-- Sidebar -->
+      <aside id="sidebar" class="w-full md:w-64 lg:w-72 bg-white p-4 shadow-sm md:h-[calc(100vh-4rem)] md:sticky md:top-16 overflow-y-auto hidden md:block">
+        <!-- Table of contents will be generated here -->
+      </aside>
+
+      <!-- Main Content -->
+      <main id="main-content" class="flex-1 p-4 md:pl-8">
+        {{ content }}
+      </main>
+    </div>
+
+    <footer class="bg-white py-4 border-t border-gray-200 mt-8 text-center text-gray-600 text-sm">
+      <div class="container mx-auto px-4">
+        <p>© {{ site.time | date: '%Y' }} {% if site.github.owner_name %}{{ site.github.owner_name }}{% else %}GitHub User{% endif %}</p>
+      </div>
+    </footer>
+
+    <!-- Include JavaScript for TOC and responsive behavior -->
+    <script src="{{ '/assets/js/toc.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/responsive.js' | relative_url }}"></script>
+  </body>
+</html>
